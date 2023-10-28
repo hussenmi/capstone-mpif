@@ -1,46 +1,21 @@
-def extract_zip(zip_path, extraction_path):
-
-    import zipfile
-
-    # Create a ZipFile object
-    zip_file = zipfile.ZipFile(zip_path, 'r')
-
-    # Extract all files from the .zip archive
-    zip_file.extractall(extraction_path)
-
-    # Close the ZipFile object
-    zip_file.close()
-
-# Specify the path to the .zip file
-zip_path = "/juno/work/shah/users/pourmalm/mpif_data/2020_jackson_nature/SingleCell_and_Metadata/SingleCell_and_Metadata.zip.1"
-zip_path2 = "/juno/work/shah/users/pourmalm/mpif_data/2020_jackson_nature/SingleCell_and_Metadata/SingleCell_and_Metadata.zip"
-zip_path3 = "/juno/work/shah/users/pourmalm/mpif_data/2020_jackson_nature/singlecell_locations.zip"
-
-# Specify the extraction path
-extraction_path = "/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data"
-
-# call the function
-# extract_zip(zip_path2, extraction_path)
-# extract_zip(zip_path3, extraction_path)
-
 import pandas as pd
 import polars as pl
 
 pd.set_option('display.max_columns', None)
 
-antibody_panel = pl.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data/Data_publication/Basel_Zuri_StainingPanel.csv")
+antibody_panel = pl.read_csv("data/Bodenmiller_data/Data_publication/Basel_Zuri_StainingPanel.csv")
 
 # metadata for basel and zurich
-basel_meta = pl.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data/Data_publication/BaselTMA/Basel_PatientMetadata.csv")
-zurich_meta = pl.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data/Data_publication/ZurichTMA/Zuri_PatientMetadata.csv")
+basel_meta = pl.read_csv("data/Bodenmiller_data/Data_publication/BaselTMA/Basel_PatientMetadata.csv")
+zurich_meta = pl.read_csv("data/Bodenmiller_data/Data_publication/ZurichTMA/Zuri_PatientMetadata.csv")
 
 
 # single-cell data for basel and zurich
-basel = pl.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data/Data_publication/BaselTMA/SC_dat.csv")
-zurich = pl.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data/Data_publication/ZurichTMA/SC_dat.csv")
+basel = pl.read_csv("data/Bodenmiller_data/Data_publication/BaselTMA/SC_dat.csv")
+zurich = pl.read_csv("data/Bodenmiller_data/Data_publication/ZurichTMA/SC_dat.csv")
 
-basel_coords = pl.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data/Basel_SC_locations.csv")
-zurich_coords = pl.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/Bodenmiller_data/Zurich_SC_locations.csv")
+basel_coords = pl.read_csv("data/Bodenmiller_data/Basel_SC_locations.csv")
+zurich_coords = pl.read_csv("data/Bodenmiller_data/Zurich_SC_locations.csv")
 
 ### cleaning up basel
 # remove normal samples
@@ -151,9 +126,9 @@ if not os.path.exists(folder_name_label):
 basel_label_new.to_csv(f'{folder_name_label}/basel_label.csv', index=False)
 
 # cell types
-basel_metaclusters = pd.read_csv("/juno/work/shah/users/pourmalm/mpif_data/2020_jackson_nature/Cluster_labels/Basel_metaclusters.csv")
+basel_metaclusters = pd.read_csv("data/Bodenmiller_data/Cluster_labels/Basel_metaclusters.csv")
 
-basel_metacluster_annotations = pd.read_csv("/juno/work/shah/users/pourmalm/mpif_data/2020_jackson_nature/Cluster_labels/Metacluster_annotations.csv")
+basel_metacluster_annotations = pd.read_csv("data/Bodenmiller_data/Cluster_labels/Metacluster_annotations.csv")
 
 basel_metaclusters_filtered = basel_metaclusters[basel_metaclusters['id'].apply(lambda x: '_'.join(x.split('_')[:-1]) in basel_meta_filtered['core'].unique())]
 basel_metacluster_annotations['Metacluster ;Cell type;Class'] = basel_metacluster_annotations['Metacluster ;Cell type;Class'].apply(lambda x: x.split(';')[1])
