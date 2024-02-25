@@ -1,0 +1,9 @@
+numpy
+scipy
+pandas
+networkx
+scikit-learn
+matplotlib
+geovoronoi
+torch >= 1.13.0
+torch_geometric >= 2.2.0

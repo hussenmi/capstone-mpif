@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Prediction Results</h2>
+    <div class="status-container">
+        <p><span class="status-label">ER status:</span> <span class="status-value">{{ er_status }}</span></p>
+        <p><span class="status-label">PR status:</span> <span class="status-value">{{ pr_status }}</span></p>
+        <p><span class="status-label">HER2 status:</span> <span class="status-value">{{ her2_status }}</span></p>
+    </div>
+</div>
+
+</body>
+</html>
