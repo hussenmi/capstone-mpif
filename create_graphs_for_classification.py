@@ -28,9 +28,6 @@ def create_graph_from_coordinates(coordinates_df, threshold, expressions_df):
     # Create an adjacency matrix based on the distance threshold
     adjacency_matrix = (dist_matrix < threshold).astype(int)
     
-    # Remove self-loops by setting the diagonal to zero
-    # np.fill_diagonal(adjacency_matrix, 0)
-    
     # Convert adjacency matrix to DataFrame
     adjacency_df = pd.DataFrame(adjacency_matrix, index=coordinates_df.index, columns=coordinates_df.index)
     
@@ -38,7 +35,6 @@ def create_graph_from_coordinates(coordinates_df, threshold, expressions_df):
     graph = nx.from_pandas_adjacency(adjacency_df)
     
     biomarker_names = expressions_df.columns[2:]
-    
     
     # Add node features for each cell (node)
     for node in graph.nodes:
@@ -49,9 +45,16 @@ def create_graph_from_coordinates(coordinates_df, threshold, expressions_df):
 
 
 def get_response_dict(response):
-    response_label = pd.read_csv(f'{PATH}_label/basel_label.csv')
-    # create a dictionary from the response label dataframe, where the key is the region id and the value is the label
+    """
+    Get a dictionary mapping region IDs to response values.
 
+    Args:
+        response (str): The name of the response column.
+
+    Returns:
+        dict: A dictionary mapping region IDs to response values.
+    """
+    response_label = pd.read_csv(f'{PATH}_label/basel_label.csv')
     response_label_dict = {}
 
     for i in range(len(response_label)):
@@ -61,6 +64,14 @@ def get_response_dict(response):
 
     
 class CellGraphDataset(InMemoryDataset):
+    """Dataset class for creating cell graph data for classification.
+
+    Args:
+        root (str): Root directory where the dataset should be saved.
+        response_label_dict (dict, optional): Dictionary mapping region IDs to response labels. Defaults to None.
+        transform (callable, optional): A function/transform that takes in a sample and returns a transformed version. Defaults to None.
+        pre_transform (callable, optional): A function/transform that takes in raw data and returns a pre-processed version. Defaults to None.
+    """
     def __init__(self, root, response_label_dict=None, transform=None, pre_transform=None):
         self.response_label_dict = response_label_dict if response_label_dict is not None else {}
         super(CellGraphDataset, self).__init__(root, transform, pre_transform)
@@ -105,44 +116,13 @@ class CellGraphDataset(InMemoryDataset):
         torch.save((data, slices), self.processed_paths[0])
         
 # Create the datasets for three different labels
-
-
 response_label_dict_er = get_response_dict('ERStatus')
 response_label_dict_pr = get_response_dict('PRStatus')
 response_label_dict_her2 = get_response_dict('HER2Status')
 
 region_ids = list(response_label_dict_er.keys())
 
-# import matplotlib.pyplot as plt
-
-# # response_label['RESPONSE_ABBREV'].value_counts().plot(kind='bar')
-# response_label_er['ERStatus'].value_counts().plot(kind='bar')
-# plt.xlabel('RESPONSE STATUS')
-# plt.xticks(rotation='horizontal')
-# plt.show()
-
 # dataset = CellGraphDataset(root='.')
 dataset_er = CellGraphDataset(root='./ER_status', response_label_dict=response_label_dict_er)
 dataset_pr = CellGraphDataset(root='./PR_status', response_label_dict=response_label_dict_pr)
 dataset_her2 = CellGraphDataset(root='./HER2_status', response_label_dict=response_label_dict_her2)
-
-# print()
-# print(f'Dataset: {dataset_er}:')
-# print('====================')
-# print(f'Number of graphs: {len(dataset_er)}')
-# print(f'Number of features: {dataset_er.num_features}')
-# print(f'Number of classes: {dataset_er.num_classes}')
-
-# data = dataset_er[0]  # Get the first graph object.
-
-# print()
-# print(data)
-# print('=============================================================')
-
-# # Gather some statistics about the first graph.
-# print(f'Number of nodes: {data.num_nodes}')
-# print(f'Number of edges: {data.num_edges}')
-# print(f'Average node degree: {data.num_edges / data.num_nodes:.2f}')
-# print(f'Has isolated nodes: {data.has_isolated_nodes()}')
-# print(f'Has self-loops: {data.has_self_loops()}')
-# print(f'Is undirected: {data.is_undirected()}')

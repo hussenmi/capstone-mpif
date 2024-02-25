@@ -6,7 +6,6 @@ from model import GCN
 from train import train_network
 from data_loader import load_cell_data
 from utils import calculate_metrics, print_classification_metrics, get_all_predictions, plot_confusion_matrix
-# from visualization import visualize_predictions
 import torch
 import random
 
@@ -21,19 +20,6 @@ def run_experiment(receptor_type, model_name, hyperparams, force_train=False):
         hyperparams (dict): A dictionary containing hyperparameters for the experiment.
         force_train (bool, optional): Whether to force training even if a pre-trained model exists. Defaults to False.
     """
-    
-    epochs, lr, momentum, batch_size, hidden_channels, optimizer_choice = hyperparams.values()
-    # Rest of the code...
-def run_experiment(receptor_type, model_name, hyperparams, force_train=False):
-    """_summary_
-
-    Args:
-        receptor_type (_type_): _description_
-        model_name (_type_): _description_
-        hyperparams (_type_): _description_
-        force_train (bool, optional): _description_. Defaults to False.
-    """
-    
     epochs, lr, momentum, batch_size, hidden_channels, optimizer_choice = hyperparams.values()
     # print(f"Running experiment with: model_name={model_name}, epochs={epochs}, lr={lr}, momentum={momentum}, batch_size={batch_size}")
     with mlflow.start_run():
@@ -47,8 +33,7 @@ def run_experiment(receptor_type, model_name, hyperparams, force_train=False):
             "optimizer_choice": optimizer_choice
         })
         
-        
-            
+        # Load the dataset and create data loaders       
         dataset, trainloader, testloader = load_cell_data(data_dir=f'./{receptor_type}', batch_size=batch_size)
         
         num_node_features = dataset.num_node_features
@@ -60,12 +45,9 @@ def run_experiment(receptor_type, model_name, hyperparams, force_train=False):
             net = GCN(num_node_features, num_classes, hidden_channels)
         # elif model_name == "CNNModel2":
         #     net = CNNModel2()
-        
-
-        
+         
         # Training
         model_filename = f"model_weights/{model_name}_receptor{receptor_type}_lr{lr}_momentum{momentum}_epochs{epochs}_batchsize{batch_size}_hiddenchannels{hidden_channels}_optimizer{optimizer_choice}.pth"
-        # print(model_filename)
         train_network(net, trainloader, model_path=model_filename, epochs=epochs, lr=lr, momentum=momentum, optimizer_choice=optimizer_choice, force_train=force_train)
         net.load_state_dict(torch.load(model_filename))  # Ensure using the trained model
 
@@ -73,7 +55,6 @@ def run_experiment(receptor_type, model_name, hyperparams, force_train=False):
         true_labels, predicted_labels = get_all_predictions(net, testloader)
         print(true_labels, predicted_labels)
         print_classification_metrics(true_labels, predicted_labels)
-        # accuracy = get_accuracy(true_labels, predicted_labels)
         metrics = calculate_metrics(true_labels, predicted_labels)
 
         # Log metrics
@@ -120,15 +101,6 @@ if __name__ == "__main__":
             "hidden_channels": [64],
             "optimizer": ["Adam"]
         }
-        
-        # hyperparameters_gcn2 = {
-        #     "epochs": [60],
-        #     "lr": [0.001],
-        #     "momentum": [0.999],
-        #     "batch_size": [64],
-        #     "hidden_channels": [64],
-        #     "optimizer": ["Adam"]
-        # }
         
         # models_to_test = [('SimpleCNN', hyperparameters_simplecnn), ('CNNModel2', hyperparameters_cnnmodel2)]
         models_to_test = [('GCN', hyperparameters_gcn)]
