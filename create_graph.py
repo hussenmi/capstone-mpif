@@ -5,8 +5,11 @@ from scipy.spatial import distance_matrix
 import networkx as nx
 
 # Read in the data
-coordinates_with_id = pd.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/data_melanoma/df_0_1_1_coords.csv")
-expressions_with_id = pd.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/data_melanoma/df_0_1_1_expression.csv")
+# coordinates_with_id = pd.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/data_melanoma/df_0_1_1_coords.csv")
+# expressions_with_id = pd.read_csv("/juno/work/shah/users/ibrahih3/codebase/space-gm/data_melanoma/df_0_1_1_expression.csv")
+
+coordinates_with_id = pd.read_csv('../../data_bodenmiller/data_bodenmiller/basel_data/BaselTMA_SP41_2_X2Y8_coords.csv')
+expressions_with_id = pd.read_csv('../../data_bodenmiller/data_bodenmiller/basel_data/BaselTMA_SP41_2_X2Y8_expression.csv')
 
 coordinates = coordinates_with_id[['X', 'Y']]
 # biomarkers = expressions_with_id.columns[2:]
@@ -51,7 +54,7 @@ graph = create_graph_from_coordinates(coordinates, 30, expressions_with_id)
 # save the graph
 import pickle
 
-with open('graph_0_1_1.pickle', 'wb') as handle:
+with open('graph_SP41_2_X2Y8.pickle', 'wb') as handle:
     pickle.dump(graph, handle, protocol=pickle.HIGHEST_PROTOCOL)
     
     

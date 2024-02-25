@@ -1,2 +1,9 @@
-data
-gnn_env
+data/
+gnn_env/
+ER_status/
+HER2_status/
+HR_status/
+PR_status/
+mlartifacts/
+mlruns/
+processed/

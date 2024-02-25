@@ -18,8 +18,8 @@ zurich_meta = pl.read_csv("../../data_bodenmiller/data_bodenmiller/Zuri_PatientM
 basel = pl.read_csv("../../data_bodenmiller/data_bodenmiller/Basel_SC_dat.csv")
 zurich = pl.read_csv("data/Bodenmiller_data/Data_publication/ZurichTMA/SC_dat.csv")
 
-basel_coords = pl.read_csv("data/Bodenmiller_data/Basel_SC_locations.csv")
-zurich_coords = pl.read_csv("data/Bodenmiller_data/Zurich_SC_locations.csv")
+basel_coords = pl.read_csv("../../data_bodenmiller/data_bodenmiller/Basel_SC_locations.csv")
+zurich_coords = pl.read_csv("../../data_bodenmiller/data_bodenmiller/Zurich_SC_locations.csv")
 
 ### cleaning up basel
 # remove normal samples
