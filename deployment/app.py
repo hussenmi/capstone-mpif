@@ -81,16 +81,6 @@ def upload_files():
             er_status = "Present" if prediction_er == 1 else "Absent"
             pr_status = "Present" if prediction_pr == 1 else "Absent"
             her2_status = "Present" if prediction_her2 == 1 else "Absent"
-            
-            # Extract probabilities for "Present" status
-            # probability_er_present = probabilities_er[:, 1].item() * 100  # Convert to percentage
-            # probability_pr_present = probabilities_pr[:, 1].item() * 100  # Convert to percentage
-            # probability_her2_present = probabilities_her2[:, 1].item() * 100  # Convert to percentage
-
-            # Format probabilities to a readable string
-            # er_status = f"{probability_er_present:.2f}%"
-            # pr_status = f"{probability_pr_present:.2f}%"
-            # her2_status = f"{probability_her2_present:.2f}%"
 
             
         # Check if request comes from a command-line tool like curl

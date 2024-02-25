@@ -8,7 +8,8 @@ from scipy.spatial import distance_matrix
 import networkx as nx
 import torch_geometric.utils as utils
 
-PATH = '../../data_bodenmiller/data_bodenmiller'
+PATH = '../../../data_bodenmiller/data_bodenmiller'
+
 
 def create_graph_from_coordinates(coordinates_df, threshold, expressions_df):
     """
@@ -106,7 +107,9 @@ class CellGraphDataset(InMemoryDataset):
             # Add the features as 'x'
             G.x = torch.tensor([data for _, data in graph.nodes(data='features')], dtype=torch.float)
 
-            G.y = torch.tensor([self.response_label_dict[region]])  # Add the graph-level label
+            # Only add the 'y' value if there are labels
+            if self.response_label_dict:
+                G.y = torch.tensor([self.response_label_dict[region]])  # Add the graph-level label
 
             # Save the data object to the list
             data_list.append(G)
@@ -115,14 +118,16 @@ class CellGraphDataset(InMemoryDataset):
         data, slices = self.collate(data_list)
         torch.save((data, slices), self.processed_paths[0])
         
-# Create the datasets for three different labels
-response_label_dict_er = get_response_dict('ERStatus')
-response_label_dict_pr = get_response_dict('PRStatus')
-response_label_dict_her2 = get_response_dict('HER2Status')
 
-region_ids = list(response_label_dict_er.keys())
+if __name__ == '__main__':
+    # Create the datasets for three different labels
+    response_label_dict_er = get_response_dict('ERStatus')
+    response_label_dict_pr = get_response_dict('PRStatus')
+    response_label_dict_her2 = get_response_dict('HER2Status')
 
-# dataset = CellGraphDataset(root='.')
-dataset_er = CellGraphDataset(root='./ER_status', response_label_dict=response_label_dict_er)
-dataset_pr = CellGraphDataset(root='./PR_status', response_label_dict=response_label_dict_pr)
-dataset_her2 = CellGraphDataset(root='./HER2_status', response_label_dict=response_label_dict_her2)
+    region_ids = list(response_label_dict_er.keys())
+
+    # dataset = CellGraphDataset(root='.')
+    dataset_er = CellGraphDataset(root='./ER_status', response_label_dict=response_label_dict_er)
+    dataset_pr = CellGraphDataset(root='./PR_status', response_label_dict=response_label_dict_pr)
+    dataset_her2 = CellGraphDataset(root='./HER2_status', response_label_dict=response_label_dict_her2)
