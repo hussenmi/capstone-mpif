@@ -18,7 +18,7 @@ PATH_PR_MODEL = 'training/model_weights/GCN_receptorPR_status_lr0.01_momentum0.9
 PATH_HER2_MODEL = 'training/model_weights/GCN_receptorHER2_status_lr0.001_momentum0.95_epochs60_batchsize64_hiddenchannels64_optimizerAdam.pth'
 
 def load_model(model_path):
-    # Load the best trained model here
+    # Load the best trained model
     model = GCN(NUM_NODE_FEATURES, NUM_CLASSES)
     model.load_state_dict(torch.load(model_path, map_location=torch.device('cpu')))
     model.eval()
@@ -73,11 +73,10 @@ def upload_files():
             prediction_her2 = probabilities_her2.argmax().item()
             
             # Get probabilities for the predicted classes
-            er_probability = probabilities_er.max().item() * 100  # Max probability for ER
-            pr_probability = probabilities_pr.max().item() * 100  # Max probability for PR
-            her2_probability = probabilities_her2.max().item() * 100  # Max probability for HER2
+            er_probability = probabilities_er.max().item() * 100
+            pr_probability = probabilities_pr.max().item() * 100
+            her2_probability = probabilities_her2.max().item() * 100
             
-            # Convert numeric predictions to "Present" or "Absent"
             er_status = "Present" if prediction_er == 1 else "Absent"
             pr_status = "Present" if prediction_pr == 1 else "Absent"
             her2_status = "Present" if prediction_her2 == 1 else "Absent"
@@ -92,23 +91,21 @@ def upload_files():
                     'probability': f"{probabilities_er.max().item():.3f}"
                 },
                 'prStatus': {
-                    'prediction': pr_status,  # "Present" or "Absent"
+                    'prediction': pr_status,
                     'probability': f"{probabilities_pr.max().item():.3f}"
                 },
                 'her2Status': {
-                    'prediction': her2_status,  # "Present" or "Absent"
+                    'prediction': her2_status,
                     'probability': f"{probabilities_her2.max().item():.3f}"
                 }
             })
         else:
-            # Render the results page
             return render_template('results.html', 
                        er_status=f"{er_status} ({er_probability:.1f}%)", 
                        pr_status=f"{pr_status} ({pr_probability:.1f}%)", 
                        her2_status=f"{her2_status} ({her2_probability:.1f}%)")
 
     else:
-        # The form has not been submitted, show the upload page
         return render_template('upload.html')
 
 if __name__ == '__main__':
