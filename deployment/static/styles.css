@@ -85,3 +85,25 @@ input[type="submit"] {
 input[type="submit"]:hover {
     background-color: #0056b3;
 }
+
+.error-message {
+    color: #D8000C;
+    background-color: #FFBABA;
+    padding: 10px;
+    margin: 20px 0;
+    border-radius: 5px;
+}
+
+.button {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: #ffffff;
+    text-decoration: none;
+    border-radius: 5px;
+    margin-top: 20px;
+}
+
+.button:hover {
+    background-color: #0056b3;
+}

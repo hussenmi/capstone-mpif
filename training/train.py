@@ -21,8 +21,9 @@ def train_network(net, trainloader, model_path='model_weights/_status.pth', epoc
     # criterion = nn.BCEWithLogitsLoss()
     if optimizer_choice == 'SGD':
         optimizer = optim.SGD(net.parameters(), lr=lr, momentum=momentum)
-    elif optimizer_choice == 'Adam':
+    elif optimizer_choice == 'Adam' or optimizer_choice == 'AdamW':
         optimizer = optim.Adam(net.parameters(), lr=lr)
+        
     
     
     os.makedirs(os.path.dirname(model_path), exist_ok=True)

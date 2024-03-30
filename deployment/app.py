@@ -3,7 +3,7 @@ from werkzeug.utils import secure_filename
 import pandas as pd
 import numpy as np
 from training.create_graphs_for_classification import create_graph_from_coordinates
-from training.model import GCN
+from training.models import GCN
 from torch_geometric.data import Data
 import torch
 from torch.nn.functional import softmax
@@ -34,79 +34,101 @@ def upload_files():
         coordinates_file = request.files['coordinates']
         expressions_file = request.files['expressions']
 
-        # Read the uploaded files into pandas DataFrames
-        coordinates_df = pd.read_csv(coordinates_file)
-        coordinates_df = coordinates_df[['X', 'Y']]
-        expressions_df = pd.read_csv(expressions_file)
+        try:
+            # Read the uploaded files into pandas DataFrames
+            coordinates_df = pd.read_csv(coordinates_file)
+            coordinates_df = coordinates_df[['X', 'Y']]
+            expressions_df = pd.read_csv(expressions_file)
 
-        # Create a graph from the data
-        graph = create_graph_from_coordinates(coordinates_df, THRESHOLD, expressions_df)
-        
-        # Convert the graph to a PyTorch Geometric Data object
-        G = Data(edge_index=torch.tensor(list(graph.edges)).t().contiguous())
-
-        # Add the features as 'x'
-        G.x = torch.tensor([data for _, data in graph.nodes(data='features')], dtype=torch.float)
-        
-        # Create a 'batch' tensor
-        G.batch = torch.zeros(G.x.size(0), dtype=torch.long)
-
-        # Load the trained models
-        model_er = load_model(PATH_ER_MODEL)
-        model_pr = load_model(PATH_PR_MODEL)
-        model_her2 = load_model(PATH_HER2_MODEL)
-
-        # Make predictions
-        with torch.no_grad():
-            logits_er = model_er(G.x, G.edge_index, G.batch)
-            logits_pr = model_pr(G.x, G.edge_index, G.batch)
-            logits_her2 = model_her2(G.x, G.edge_index, G.batch)
+            # Create a graph from the data
+            graph = create_graph_from_coordinates(coordinates_df, THRESHOLD, expressions_df)
             
-            # Convert outputs to probabilities
-            probabilities_er = torch.nn.functional.softmax(logits_er, dim=1)
-            probabilities_pr = torch.nn.functional.softmax(logits_pr, dim=1)
-            probabilities_her2 = torch.nn.functional.softmax(logits_her2, dim=1)
+            # Convert the graph to a PyTorch Geometric Data object
+            G = Data(edge_index=torch.tensor(list(graph.edges)).t().contiguous())
 
-            # Choose the class with the highest probability
-            prediction_er = probabilities_er.argmax().item()
-            prediction_pr = probabilities_pr.argmax().item()
-            prediction_her2 = probabilities_her2.argmax().item()
+            # Add the features as 'x'
+            G.x = torch.tensor([data for _, data in graph.nodes(data='features')], dtype=torch.float)
             
-            # Get probabilities for the predicted classes
-            er_probability = probabilities_er.max().item() * 100
-            pr_probability = probabilities_pr.max().item() * 100
-            her2_probability = probabilities_her2.max().item() * 100
-            
-            er_status = "Present" if prediction_er == 1 else "Absent"
-            pr_status = "Present" if prediction_pr == 1 else "Absent"
-            her2_status = "Present" if prediction_her2 == 1 else "Absent"
+            # Create a 'batch' tensor
+            G.batch = torch.zeros(G.x.size(0), dtype=torch.long)
 
-            
-        # Check if request comes from a command-line tool like curl
-        if 'curl' in request.headers.get('User-Agent', ''):
-            # Return JSON response for curl-like requests
-            return jsonify({
-                'erStatus': {
-                    'prediction': er_status,  # "Present" or "Absent"
-                    'probability': f"{probabilities_er.max().item():.3f}"
-                },
-                'prStatus': {
-                    'prediction': pr_status,
-                    'probability': f"{probabilities_pr.max().item():.3f}"
-                },
-                'her2Status': {
-                    'prediction': her2_status,
-                    'probability': f"{probabilities_her2.max().item():.3f}"
-                }
-            })
-        else:
-            return render_template('results.html', 
-                       er_status=f"{er_status} ({er_probability:.1f}%)", 
-                       pr_status=f"{pr_status} ({pr_probability:.1f}%)", 
-                       her2_status=f"{her2_status} ({her2_probability:.1f}%)")
+            # Load the trained models
+            model_er = load_model(PATH_ER_MODEL)
+            model_pr = load_model(PATH_PR_MODEL)
+            model_her2 = load_model(PATH_HER2_MODEL)
 
+            # Make predictions
+            with torch.no_grad():
+                logits_er = model_er(G.x, G.edge_index, G.batch)
+                logits_pr = model_pr(G.x, G.edge_index, G.batch)
+                logits_her2 = model_her2(G.x, G.edge_index, G.batch)
+                
+                # Convert outputs to probabilities
+                probabilities_er = torch.nn.functional.softmax(logits_er, dim=1)
+                probabilities_pr = torch.nn.functional.softmax(logits_pr, dim=1)
+                probabilities_her2 = torch.nn.functional.softmax(logits_her2, dim=1)
+
+                # Choose the class with the highest probability
+                prediction_er = probabilities_er.argmax().item()
+                prediction_pr = probabilities_pr.argmax().item()
+                prediction_her2 = probabilities_her2.argmax().item()
+                
+                # Get probabilities for the predicted classes
+                er_probability = probabilities_er.max().item() * 100
+                pr_probability = probabilities_pr.max().item() * 100
+                her2_probability = probabilities_her2.max().item() * 100
+                
+                er_status = "Present" if prediction_er == 1 else "Absent"
+                pr_status = "Present" if prediction_pr == 1 else "Absent"
+                her2_status = "Present" if prediction_her2 == 1 else "Absent"
+
+                
+            # Check if request comes from a command-line tool like curl
+            if 'curl' in request.headers.get('User-Agent', ''):
+                # Return JSON response for curl-like requests
+                return jsonify({
+                    'erStatus': {
+                        'prediction': er_status,  # "Present" or "Absent"
+                        'probability': f"{probabilities_er.max().item():.3f}"
+                    },
+                    'prStatus': {
+                        'prediction': pr_status,
+                        'probability': f"{probabilities_pr.max().item():.3f}"
+                    },
+                    'her2Status': {
+                        'prediction': her2_status,
+                        'probability': f"{probabilities_her2.max().item():.3f}"
+                    }
+                })
+            else:
+                return render_template('results.html', 
+                        er_status=f"{er_status} ({er_probability:.1f}%)", 
+                        pr_status=f"{pr_status} ({pr_probability:.1f}%)", 
+                        her2_status=f"{her2_status} ({her2_probability:.1f}%)")
+        except KeyError as e:
+            # Handle the error gracefully and inform the user
+            # error_message = f"An error occurred while processing the files: Make sure your f"
+            error_message = """
+                An error occurred while processing the files. Please ensure that:
+                <ul>
+                <li>The uploaded files correctly match: one coordinates file and one expressions file, both representing the same tissue and containing the same number of cells.</li>
+                <li>The coordinates file must include the columns: CELL_ID, X, Y.</li>
+                <li>The expressions file must include the columns: ACQUISITION_ID, CELL_ID, followed by the biomarker names.</li>
+                </ul>
+                Please check your files and try uploading again.
+                """
+            
+            if 'curl' in request.headers.get('User-Agent', ''):
+                return jsonify({'error': error_message}), 400
+            else:
+                return render_template('error.html', error_message=error_message), 400
+            
+        except Exception as e:
+            # Handle other exceptions
+            general_error_message = "A general error occurred. Please try again."
+            return render_template('error.html', error_message=general_error_message), 500
     else:
         return render_template('upload.html')
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(debug=True, port=5001)

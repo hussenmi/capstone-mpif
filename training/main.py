@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import mlflow
 from mlflow import log_metric, log_param, log_params, log_artifact, log_artifacts
-from model import GCN
+from models import GCN, GIN
 from train import train_network
 from data_loader import load_cell_data
 from utils import calculate_metrics, print_classification_metrics, get_all_predictions, plot_confusion_matrix
@@ -43,8 +43,8 @@ def run_experiment(receptor_type, model_name, hyperparams, force_train=False):
             # print('num_node_features:', num_node_features)
             # print('num_classes:', num_classes)
             net = GCN(num_node_features, num_classes, hidden_channels)
-        # elif model_name == "CNNModel2":
-        #     net = CNNModel2()
+        elif model_name == "GIN":
+            net = GIN(num_node_features, num_classes, hidden_channels)
          
         # Training
         model_filename = f"model_weights/{model_name}_receptor{receptor_type}_lr{lr}_momentum{momentum}_epochs{epochs}_batchsize{batch_size}_hiddenchannels{hidden_channels}_optimizer{optimizer_choice}.pth"
@@ -84,14 +84,6 @@ if __name__ == "__main__":
         print(f"Running experiments for receptor type: {receptor_type}")
         
         # Define the hyperparameter search space
-        # hyperparameters_simplecnn = {
-        #     "epochs": [5, 7, 10, 15],
-        #     "lr": [0.001, 0.0005, 0.0001],
-        #     "momentum": [0.9, 0.95, 0.99, 0.999],
-        #     "batch_size": [8, 16, 32, 64, 128],
-        #     "hidden_channels": [16, 32, 64],
-        #     "optimizer": ["SGD", "Adam"]
-        # }
 
         hyperparameters_gcn = {
             "epochs": [60, 80],
@@ -102,8 +94,19 @@ if __name__ == "__main__":
             "optimizer": ["Adam"]
         }
         
-        # models_to_test = [('SimpleCNN', hyperparameters_simplecnn), ('CNNModel2', hyperparameters_cnnmodel2)]
-        models_to_test = [('GCN', hyperparameters_gcn)]
+        hyperparameters_gin = {
+            "epochs": [60, 80, 100],  # Extended range to explore longer training durations
+            "lr": [0.001, 0.01, 0.005],  # Learning rate options similar to GCN
+            "momentum": [0.9, 0.95, 0.99],  # Momentum for optimizers that support it
+            "batch_size": [16, 32, 64, 128],  # Batch sizes to test different levels of stochasticity
+            "hidden_channels": [64],  # Test wider range to explore GIN's expressive power
+            # "num_layers": [2, 3, 4],  # Number of GIN layers to test depth's impact on performance
+            "optimizer": ["Adam", "AdamW"],  # Include AdamW for potentially better weight regularization
+            # "dropout_rate": [0.5, 0.3, 0.1],  # Explore different dropout rates for regularization
+        }
+        
+        models_to_test = [('GIN', hyperparameters_gin)]
+        # models_to_test = [('GCN', hyperparameters_gcn), ('GIN', hyperparameters_gin)]
         
         experiments_per_model = 3
 

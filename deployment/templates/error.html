@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error</title>
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+
+<div class="container">
+    <h2>Oops! Something went wrong.</h2>
+    <div class="error-message">{{ error_message|safe }}</div>
+    <a href="/" class="button">Try Uploading Again</a>
+</div>
+
+</body>
+</html>
