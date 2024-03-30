@@ -34,7 +34,7 @@ To test the application, you can use two different approaches.
 ### 1. Web App Interface
 Since the model weights are provided in this repository, users can interact with a web-based interface to upload CSV files for the coordinates and expressions of the regions and receive predictions directly in the browser. The coordinates file needs to have columns `X` and `Y`. The expression file needs the columns `ACQUISITION_ID`, `CELL_ID`, and the biomarkers as separate columns. 
 
-Navigate to the provided URL (e.g., `http://localhost:5000`) and use the upload form to select the files. Example files are found in `deployment/test_files`. Upon submission, the predictions will be displayed.
+Navigate to the provided URL (e.g., `http://localhost:5001`) and use the upload form to select the files. Example files are found in `deployment/test_files`. Upon submission, the predictions will be displayed.
 
 ### 2. API Endpoint
 For programmatic access, users can send the coordinates and expressions files via a `curl` command to an API endpoint and receive predictions in a JSON response format. Here is the structure of the response:
